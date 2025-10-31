@@ -1,5 +1,9 @@
 // Function to simulate "i" keydown
 function simulateIKey() {
+    const video = document.querySelector('video');
+    // Store the current playback rate before entering miniplayer
+    const currentRate = video ? video.playbackRate : 1;
+    
     const event = new KeyboardEvent('keydown', {
         key: 'i',
         code: 'KeyI',
@@ -9,6 +13,13 @@ function simulateIKey() {
         cancelable: true
     });
     document.dispatchEvent(event);
+    
+    // Restore the playback rate after a short delay to ensure miniplayer has been activated
+    if (video) {
+        setTimeout(() => {
+            video.playbackRate = currentRate;
+        }, 100);
+    }
 }
 
 // Function to toggle picture-in-picture mode
@@ -28,6 +39,8 @@ function attachMiniplayerListener(button) {
     if (!button.__listenerAttached) { // prevent multiple listeners
         button.addEventListener('click', simulateIKey);
         button.style.display = 'inline-flex'; // ensure visible
+        button.style.alignItems = 'center'; // center icon vertically
+        button.style.justifyContent = 'center'; // center icon horizontally
         button.__listenerAttached = true;
     }
 }
@@ -37,6 +50,8 @@ function attachPipListener(button) {
     if (!button.__pipListenerAttached) { // prevent multiple listeners
         button.addEventListener('click', togglePictureInPicture);
         button.style.display = 'inline-flex'; // ensure visible
+        button.style.alignItems = 'center'; // center icon vertically
+        button.style.justifyContent = 'center'; // center icon horizontally
         button.__pipListenerAttached = true;
     }
 }
@@ -55,7 +70,7 @@ function ensurePipButton() {
         pipButton.setAttribute('data-title-no-tooltip', 'Picture in Picture');
         pipButton.setAttribute('aria-label', 'Picture in Picture');
         pipButton.innerHTML = `
-            <svg class="custom-yt-pip-button-icon" height="100%" version="1.1" viewBox="0 0 36 36" width="100%" fill-opacity="1">
+            <svg class="custom-yt-pip-button-icon" height="100%" version="1.1" viewBox="0 0 36 36" width="100%" fill-opacity="1" style="display: block;">
                 <use class="ytp-svg-shadow" xlink:href="#custom-pip-id"></use>
                 <path d="M23.6897 25.4348V14.4626C23.6897 13.6017 23.0069 12.913 22.1724 12.913H8.51724C7.68276 12.913 7 13.6017 7 14.4626V25.4348C7 26.2957 7.68276 27 8.51724 27H22.1724C23.0069 27 23.6897 26.2957 23.6897 25.4348Z" fill="#fff" id="custom-pip-id"/>
                 <path d="M27.4828 9C28.3172 9 29 9.68906 29 10.5499V21.5217C29 22.3826 28.3172 23.087 27.4828 23.087H25V21.3158H27.24V10.8947H13.8276V12H12.3103V10.5499C12.3103 9.68906 12.9931 9 13.8276 9H27.4828Z" fill="#fff"/>
@@ -98,7 +113,7 @@ function ensureMiniplayerButton() {
         button.setAttribute('aria-label', 'Miniplayer keyboard shortcut i');
         button.setAttribute('data-tooltip-title', 'Miniplayer (i)');
         button.innerHTML = `
-            <svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%">
+            <svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%" style="display: block;">
                 <use class="ytp-svg-shadow" xlink:href="#ytp-id-20"></use>
                 <path d="M25,17 L17,17 L17,23 L25,23 L25,17 L25,17 Z M29,25 L29,10.98 C29,9.88 28.1,9 27,9 L9,9 C7.9,9 7,9.88 7,10.98 L7,25 C7,26.1 7.9,27 9,27 L27,27 C28.1,27 29,26.1 29,25 L29,25 Z M27,25.02 L9,25.02 L9,10.97 L27,10.97 L27,25.02 L27,25.02 Z" fill="#fff" id="ytp-id-20"></path>
             </svg>
@@ -214,7 +229,7 @@ function ensureLensButton() {
         lensBtn.setAttribute('data-tooltip-title', 'Search this frame with Google Lens');
         lensBtn.setAttribute('data-title-no-tooltip', 'Google Lens');
         lensBtn.innerHTML = `
-            <svg width="100%" height="100%" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="100%" height="100%" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
                 <path d="M18 21.4444C17.0741 21.4444 16.287 21.1204 15.6389 20.4722C14.9907 19.8241 14.6667 19.037 14.6667 18.1111C14.6667 17.1852 14.9907 16.3981 15.6389 15.75C16.287 15.1019 17.0741 14.7778 18 14.7778C18.9259 14.7778 19.713 15.1019 20.3611 15.75C21.0093 16.3981 21.3333 17.1852 21.3333 18.1111C21.3333 19.037 21.0093 19.8241 20.3611 20.4722C19.713 21.1204 18.9259 21.4444 18 21.4444ZM24.6667 25.8889C24.0556 25.8889 23.5324 25.6713 23.0972 25.2361C22.662 24.8009 22.4444 24.2778 22.4444 23.6667C22.4444 23.0556 22.662 22.5324 23.0972 22.0972C23.5324 21.662 24.0556 21.4444 24.6667 21.4444C25.2778 21.4444 25.8009 21.662 26.2361 22.0972C26.6713 22.5324 26.8889 23.0556 26.8889 23.6667C26.8889 24.2778 26.6713 24.8009 26.2361 25.2361C25.8009 25.6713 25.2778 25.8889 24.6667 25.8889ZM12.4444 27C11.2222 27 10.1759 26.5648 9.30556 25.6944C8.43519 24.8241 8 23.7778 8 22.5556V20.3333H10.2222V22.5556C10.2222 23.1667 10.4398 23.6898 10.875 24.125C11.3102 24.5602 11.8333 24.7778 12.4444 24.7778H18V27H12.4444ZM25.7778 18.1111V13.6667C25.7778 13.0556 25.5602 12.5324 25.125 12.0972C24.6898 11.662 24.1667 11.4444 23.5556 11.4444H12.4444C11.8333 11.4444 11.3102 11.662 10.875 12.0972C10.4398 12.5324 10.2222 13.0556 10.2222 13.6667V17H8V13.6667C8 12.4444 8.43519 11.3981 9.30556 10.5278C10.1759 9.65741 11.2222 9.22222 12.4444 9.22222H14.6667L15.7778 7H20.2222L21.3333 9.22222H23.5556C24.7778 9.22222 25.8241 9.65741 26.6944 10.5278C27.5648 11.3981 28 12.4444 28 13.6667V18.1111H25.7778Z" fill="white"/>
             </svg>
         `;
@@ -278,11 +293,11 @@ function openCurrentFrameInLens() {
 // --- Speed Changer Button ---
 const SPEED_MODES = [0.5, 0.75, 1, 1.5, 2];
 const SPEED_ICONS = {
-    0.5: `<svg width="36" height="36" viewBox="0 0 36 36"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#fff" font-family="Arial">0.5x</text></svg>`,
-    0.75: `<svg width="36" height="36" viewBox="0 0 36 36"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#fff" font-family="Arial">.75x</text></svg>`,
-    1: `<svg width="36" height="36" viewBox="0 0 36 36"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#fff" font-family="Arial">1x</text></svg>`,
-    1.5: `<svg width="36" height="36" viewBox="0 0 36 36"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#fff" font-family="Arial">1.5x</text></svg>`,
-    2: `<svg width="36" height="36" viewBox="0 0 36 36"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#fff" font-family="Arial">2x</text></svg>`
+    0.5: `<svg width="36" height="36" viewBox="0 0 36 36" style="display: block;"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#fff" font-family="Arial">0.5x</text></svg>`,
+    0.75: `<svg width="36" height="36" viewBox="0 0 36 36" style="display: block;"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#fff" font-family="Arial">.75x</text></svg>`,
+    1: `<svg width="36" height="36" viewBox="0 0 36 36" style="display: block;"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#fff" font-family="Arial">1x</text></svg>`,
+    1.5: `<svg width="36" height="36" viewBox="0 0 36 36" style="display: block;"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#fff" font-family="Arial">1.5x</text></svg>`,
+    2: `<svg width="36" height="36" viewBox="0 0 36 36" style="display: block;"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#fff" font-family="Arial">2x</text></svg>`
 };
 
 function ensureSpeedButton() {
@@ -302,7 +317,7 @@ function ensureSpeedButton() {
             this.__speedIndex = (this.__speedIndex + 1) % SPEED_MODES.length;
             const speed = SPEED_MODES[this.__speedIndex];
             setVideoSpeed(speed);
-            this.innerHTML = SPEED_ICONS[speed];
+            this.innerHTML = SPEED_ICONS[speed].replace('width="36"', 'width="100%"').replace('height="36"', 'height="100%"');
             this.setAttribute('title', `Speed: ${speed}x`);
             this.setAttribute('aria-label', `Speed: ${speed}x`);
             this.setAttribute('data-tooltip-title', `Speed: ${speed}x`);
