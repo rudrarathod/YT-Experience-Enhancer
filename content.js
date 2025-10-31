@@ -1,3 +1,6 @@
+// Constants
+const MINIPLAYER_ACTIVATION_DELAY = 100; // milliseconds to wait before restoring playback rate
+
 // Function to simulate "i" keydown
 function simulateIKey() {
     const video = document.querySelector('video');
@@ -18,7 +21,7 @@ function simulateIKey() {
     if (video) {
         setTimeout(() => {
             video.playbackRate = currentRate;
-        }, 100);
+        }, MINIPLAYER_ACTIVATION_DELAY);
     }
 }
 
@@ -300,6 +303,12 @@ const SPEED_ICONS = {
     2: `<svg width="36" height="36" viewBox="0 0 36 36" style="display: block;"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#fff" font-family="Arial">2x</text></svg>`
 };
 
+// Pre-compute modified speed icons for better performance
+const SPEED_ICONS_RESPONSIVE = {};
+Object.keys(SPEED_ICONS).forEach(key => {
+    SPEED_ICONS_RESPONSIVE[key] = SPEED_ICONS[key].replace('width="36"', 'width="100%"').replace('height="36"', 'height="100%"');
+});
+
 function ensureSpeedButton() {
     let speedBtn = document.querySelector('.ytp-speed-changer-button');
     if (!speedBtn) {
@@ -310,14 +319,14 @@ function ensureSpeedButton() {
         speedBtn.setAttribute('aria-label', 'Playback Speed');
         speedBtn.setAttribute('data-tooltip-title', 'Playback Speed');
         speedBtn.setAttribute('data-title-no-tooltip', 'Playback Speed');
-    // Use width/height 100% for SVG icon
-    speedBtn.innerHTML = SPEED_ICONS[1].replace('width="36"', 'width="100%"').replace('height="36"', 'height="100%"');
+    // Use pre-computed responsive icon
+    speedBtn.innerHTML = SPEED_ICONS_RESPONSIVE[1];
         speedBtn.__speedIndex = 2; // default to 1x
         speedBtn.addEventListener('click', function() {
             this.__speedIndex = (this.__speedIndex + 1) % SPEED_MODES.length;
             const speed = SPEED_MODES[this.__speedIndex];
             setVideoSpeed(speed);
-            this.innerHTML = SPEED_ICONS[speed].replace('width="36"', 'width="100%"').replace('height="36"', 'height="100%"');
+            this.innerHTML = SPEED_ICONS_RESPONSIVE[speed];
             this.setAttribute('title', `Speed: ${speed}x`);
             this.setAttribute('aria-label', `Speed: ${speed}x`);
             this.setAttribute('data-tooltip-title', `Speed: ${speed}x`);
@@ -333,7 +342,7 @@ function ensureSpeedButton() {
     }
     // Set initial speed and icon
     setVideoSpeed(SPEED_MODES[speedBtn.__speedIndex || 2]);
-    speedBtn.innerHTML = SPEED_ICONS[SPEED_MODES[speedBtn.__speedIndex || 2]].replace('width="36"', 'width="100%"').replace('height="36"', 'height="100%"');
+    speedBtn.innerHTML = SPEED_ICONS_RESPONSIVE[SPEED_MODES[speedBtn.__speedIndex || 2]];
 }
 
 function setVideoSpeed(speed) {
