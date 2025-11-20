@@ -84,16 +84,30 @@ function openLens() {
 const SPEEDS = [0.5, 0.75, 1, 1.5, 2];
 function ensureSpeed() {
     if (QS('.ytp-speed-changer-button')) return;
-    const btn = createBtn({ cls: 'ytp-speed-changer-button', title: 'Speed: 1x', html: getSpeedIcon(1), priority: '8' });
-    btn.__idx = 2;
-    btn.onclick = function() {
-        this.__idx = (this.__idx + 1) % SPEEDS.length;
-        const s = SPEEDS[this.__idx];
-        const v = QS('video'); if (v) v.playbackRate = s;
-        this.innerHTML = getSpeedIcon(s);
-        this.title = `Speed: ${s}x`;
+    const btn = createBtn({ cls: 'ytp-speed-changer-button', title: 'Speed', html: getSpeedIcon(1), priority: '8' });
+    
+    const updateState = () => {
+        const v = QS('video');
+        if (!v) return;
+        const s = v.playbackRate;
+        btn.innerHTML = getSpeedIcon(s);
+        btn.title = `Speed: ${s}x`;
+        // Find closest index for cycling
+        const idx = SPEEDS.indexOf(s);
+        btn.__idx = idx !== -1 ? idx : 2;
     };
+
+    btn.onclick = function() {
+        const v = QS('video'); if (!v) return;
+        this.__idx = (this.__idx + 1) % SPEEDS.length;
+        v.playbackRate = SPEEDS[this.__idx];
+    };
+
     insertBtn(btn, '.ytp-settings-button');
+    
+    // Sync with current state and listen for changes
+    updateState();
+    QS('video')?.addEventListener('ratechange', updateState);
 }
 
 // Feature: Labels
@@ -160,8 +174,12 @@ function showOverlay(txt) {
 }
 function updateGestureOverlay() {
     const old = document.getElementById(GESTURE_OVERLAY_ID);
-    if (old) old.remove();
-    if (!config['show-gesture-overlay']) return;
+    if (!config['show-gesture-overlay']) {
+        if (old) old.remove();
+        return;
+    }
+    if (old) return; // Already exists
+
     const v = QS('video'); if (!v) return;
     const ov = CE('div'); ov.id = GESTURE_OVERLAY_ID;
     Object.assign(ov.style, { position: 'absolute', left: 0, top: 0, width: v.offsetWidth + 'px', height: v.offsetHeight + 'px', pointerEvents: 'none', zIndex: '999998', display: 'flex' });
