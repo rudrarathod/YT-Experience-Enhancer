@@ -27,7 +27,7 @@ function togglePictureInPicture() {
 function attachMiniplayerListener(button) {
     if (!button.__listenerAttached) { // prevent multiple listeners
         button.addEventListener('click', simulateIKey);
-        button.style.display = 'inline-flex'; // ensure visible
+        button.style.display = 'inline-block'; // ensure visible
         button.__listenerAttached = true;
     }
 }
@@ -36,7 +36,7 @@ function attachMiniplayerListener(button) {
 function attachPipListener(button) {
     if (!button.__pipListenerAttached) { // prevent multiple listeners
         button.addEventListener('click', togglePictureInPicture);
-        button.style.display = 'inline-flex'; // ensure visible
+        button.style.display = 'inline-block'; // ensure visible
         button.__pipListenerAttached = true;
     }
 }
@@ -48,7 +48,7 @@ function ensurePipButton() {
     if (!pipButton) {
         // Create the PiP button if it doesn't exist
         pipButton = document.createElement('button');
-        pipButton.className = 'custom-yt-pip-button ytp-button';
+        pipButton.className = 'custom-yt-pip-button ytp-button custom-yt-btn';
         pipButton.setAttribute('data-priority', '6');
         pipButton.setAttribute('title', 'Picture in Picture');
         pipButton.setAttribute('data-tooltip-title', 'Picture in Picture');
@@ -89,7 +89,7 @@ function ensureMiniplayerButton() {
     if (!button) {
         // Create the button if it doesn't exist
         button = document.createElement('button');
-        button.className = 'ytp-miniplayer-button ytp-button';
+        button.className = 'ytp-miniplayer-button ytp-button custom-yt-btn';
         button.setAttribute('title', 'Miniplayer');
         button.setAttribute('aria-keyshortcuts', 'i');
         button.setAttribute('data-priority', '7');
@@ -177,9 +177,11 @@ function updateButtonLabelsFromStorage() {
 
 // Observe DOM changes to re-apply labels if needed
 let btnLabelObserver = new MutationObserver(() => {
-    chrome.storage.sync.get([BTN_LABELS_KEY], (result) => {
-        if (result[BTN_LABELS_KEY]) showButtonLabels();
-    });
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+        chrome.storage.sync.get([BTN_LABELS_KEY], (result) => {
+            if (result[BTN_LABELS_KEY]) showButtonLabels();
+        });
+    }
 });
 // Listen for changes from popup and apply all toggles live
 chrome.storage.onChanged.addListener((changes, area) => {
@@ -207,7 +209,7 @@ function ensureLensButton() {
     let lensBtn = document.querySelector('.ytp-google-lens-button');
     if (!lensBtn) {
         lensBtn = document.createElement('button');
-    lensBtn.className = 'ytp-google-lens-button ytp-button';
+    lensBtn.className = 'ytp-google-lens-button ytp-button custom-yt-btn';
         lensBtn.setAttribute('data-priority', '9');
         lensBtn.setAttribute('title', 'Search this frame with Google Lens');
         lensBtn.setAttribute('aria-label', 'Search this frame with Google Lens');
@@ -289,7 +291,7 @@ function ensureSpeedButton() {
     let speedBtn = document.querySelector('.ytp-speed-changer-button');
     if (!speedBtn) {
         speedBtn = document.createElement('button');
-    speedBtn.className = 'ytp-speed-changer-button ytp-button';
+    speedBtn.className = 'ytp-speed-changer-button ytp-button custom-yt-btn';
         speedBtn.setAttribute('data-priority', '8');
         speedBtn.setAttribute('title', 'Playback Speed');
         speedBtn.setAttribute('aria-label', 'Playback Speed');
@@ -464,6 +466,12 @@ function createGestureAreaOverlay() {
     leftLabel.style.padding = '0.2em 0.8em';
     leftLabel.style.borderRadius = '0.7em';
     leftLabel.style.pointerEvents = 'none';
+    leftLabel.style.whiteSpace = 'nowrap';
+    leftLabel.style.zIndex = '10000';
+    leftLabel.style.fontWeight = '500';
+    leftLabel.style.letterSpacing = '0.01em';
+    leftLabel.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+    leftLabel.style.marginBottom = '0.5em';
     left.appendChild(leftLabel);
 
     // Center (safe)
@@ -486,6 +494,12 @@ function createGestureAreaOverlay() {
     centerLabel.style.padding = '0.2em 0.8em';
     centerLabel.style.borderRadius = '0.7em';
     centerLabel.style.pointerEvents = 'none';
+    centerLabel.style.whiteSpace = 'nowrap';
+    centerLabel.style.zIndex = '10000';
+    centerLabel.style.fontWeight = '500';
+    centerLabel.style.letterSpacing = '0.01em';
+    centerLabel.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+    centerLabel.style.marginBottom = '0.5em';
     center.appendChild(centerLabel);
 
     // Right (volume)
@@ -509,6 +523,12 @@ function createGestureAreaOverlay() {
     rightLabel.style.padding = '0.2em 0.8em';
     rightLabel.style.borderRadius = '0.7em';
     rightLabel.style.pointerEvents = 'none';
+    rightLabel.style.whiteSpace = 'nowrap';
+    rightLabel.style.zIndex = '10000';
+    rightLabel.style.fontWeight = '500';
+    rightLabel.style.letterSpacing = '0.01em';
+    rightLabel.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+    rightLabel.style.marginBottom = '0.5em';
     right.appendChild(rightLabel);
 
     overlay.appendChild(left);
@@ -688,3 +708,22 @@ function setupGestureControls() {
 
 // Gesture observer is now managed in runFeatureSetup
 let gestureObserver = new MutationObserver(setupGestureControls);
+
+function injectStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .custom-yt-btn svg, 
+        .custom-yt-btn img {
+            width: auto !important;
+            height: auto !important;
+            display: block;
+            pointer-events: none;
+            transform: scale(1.5);
+            transform-origin: center center;
+            display: inline-block;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+injectStyles();
